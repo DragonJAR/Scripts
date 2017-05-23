@@ -1,0 +1,5 @@
+[Shell]
+Command=0
+IconFile=\\NUESTRAIP\CARPETACOMPARTIDA\ICONOFALSO.ico
+[Taskbar]
+Command=ToggleDesktop
