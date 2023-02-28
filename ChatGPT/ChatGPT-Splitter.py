@@ -1,11 +1,21 @@
-import pyperclip # pip3 install pyperclip
 import sys
+import signal
 
-# Lee el nombre del archivo de texto como parámetro
-if len(sys.argv) < 2:
-    print("Error: debes especificar el archivo de texto como parámetro.")
+try:
+    import pyperclip
+except ModuleNotFoundError:
+    print("ᐒ Error: La librería pyperclip no está instalada. Para instalarla, ejecuta 'pip3 install pyperclip'")
     sys.exit(1)
 
+# Define una función para manejar la señal de CTRL + C
+def signal_handler(sig, frame):
+    print("\n\nᐒ Programa interrumpido por el usuario (CTRL + C)")
+    sys.exit(0)
+
+# Registra la función de manejo de señal
+signal.signal(signal.SIGINT, signal_handler)
+
+# Lee el nombre del archivo de texto como parámetro
 filename = sys.argv[1]
 
 # Lee el contenido del archivo, ejecutalo como python3 ChatGPT-Splitter.py archivodetexto.txt
