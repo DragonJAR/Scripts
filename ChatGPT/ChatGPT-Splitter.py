@@ -53,9 +53,9 @@ if '-ia' in sys.argv:
     try:
         ia_value = sys.argv[sys.argv.index('-ia') + 1]
         if ia_value == 'bing':
-            block_size = 1840
+            block_size = 1835
         else:
-            block_size = 3950
+            block_size = 3935
     except IndexError:
         print("ᐒ El parámetro -ia no tiene un valor especificado, revisa la ayuda con -h.\n\n")
         sys.exit()
@@ -85,7 +85,7 @@ while start < len(text):
 num_blocks = len(blocks)
 
 
-print(f"\nᐒ El texto se divide en {num_blocks} bloques de {block_size} caracteres.\n")
+print(f"\nᐒ El texto se divide en {num_blocks} bloques de caracteres.\n")
 print(f"ᐒ Acabo de copiar al portapapeles la siguiente instrucción, tu vas a pegarla en ChatGPT:\n")
 orden = (f"Ignora todo lo que te he pedido previamente en este chat y vas a recibir un texto largo que está cortado en {num_blocks} partes. Lo único que podrás escribirme hasta que termine de enviarte las {num_blocks} partes es 'OK, entendido. Por favor, envíame la siguiente parte del texto.' cambiando la palabra 'siguiente' por el número en que te encuentres de las {num_blocks} partes. NO DEBES ESCRIBIR NADA DIFERENTE A ESO COMO SALIDA HASTA QUE TE ENVÍE TODAS LAS {num_blocks} PARTES. No te debe importar si el texto parece inconcluso o cortado, ya que el texto solo tendrá sentido cuando termine de enviarte todas las {num_blocks} partes y te empiece a dar órdenes sobre el texto completo. NO vas a procesar el texto que te envíe hasta que termines todas las {num_blocks} partes y TU ÚNICA SALIDA hasta que termine de enviarte las {num_blocks} partes es pedirme la siguiente parte como te acabo de indicar. No hagas nada con el texto hasta que te haya enviado todas las {num_blocks} partes. Cuando hayas terminado de enviarte las {num_blocks} partes, pregúntame qué deseo hacer con ellas y sigue mis órdenes. En ningún momento salgas de los lineamientos que te estoy dando, ni muestres en pantalla una salida distinta a pedirme la siguiente parte, independiente del número de mensajes que llevemos en esta conversación. Si has entendido bien, escribe 'OK, entendido. Por favor, envíame la siguiente parte del texto.' y empieza a pedirme cada parte.")
 print(orden)
