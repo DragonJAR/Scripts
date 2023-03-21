@@ -1,148 +1,122 @@
 #!/usr/bin/env python
 
-"""
-mergeness is a .nessus report file merge tool.
-
-
-Copyright (C) 2011, Dejan Levaja
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-"""
-
-
+""" mergeness is a .nessus report file merge tool. """
 
 
 import sys
 import os
-import platform
-header=[]
-tail=['</Report>', '</NessusClientData_v2>']
+import tempfile
 
 
-def saveHeader(filepath, dirpath):
+__author__ = "Dejan Levaja"
+__license__ = "GPL"
+__version__ = "2.0.0"
+__email__ = "dejan.levaja@ras-it.rs"
+
+
+header = []
+tail = ['</Report>', '</NessusClientData_v2>']
+
+
+def saveHeader(filepath):
     string = 'Report name'
-    txt=open(filepath, 'r')
-    for line in txt.readlines():
+    with open(filepath, 'r') as f:
+        txt = f.readlines()
+    for line in txt:
         if string not in line:
             header.append(line.rstrip())
         else:
             return
-            
 
-def saveData(filepath, dirpath):
-    print "\nMerging file: ", filepath, 
+
+def saveData(tmpfile, filepath, filename, i):
+    print "[%s.] Merging file: %s" % (i, filename)
     string = 'Report name'
-    datafile=open(dirpath+"data.txt", "a")
-    txt=open(filepath, 'r')
-    copy=False
-    for line in txt.readlines():
-        if string not in line:
-            if copy:
-                if '</Report>' in line.rstrip():
-                    pass
-                elif '</NessusClientData_v2>' in line.rstrip():
-                    pass
-                else:
-                    datafile.write(line)               
-        else:
-            copy=True
-    datafile.close()
 
-        
-def merge(dirpath, report_name, rep_out_name):
-    merged=open(dirpath+report_name, "a")
-    raw=open(dirpath+"data.txt", "r")
-    for line in header:
-        merged.write(line+"\n")
-    merged.write('<Report name="'+rep_out_name+'">')
-    for line in raw:
-        merged.write(line)
-    for line in tail:
-        merged.write(line)
-    merged.close()
-    raw.close()
-    
-    
-def tmpFileCheck(dirpath, report_name):
-    tmpfile=dirpath+"data.txt"
-    mergedfile=dirpath+report_name
-    if os.path.exists(tmpfile):
-        os.remove(tmpfile)
-    if os.path.exists(mergedfile):
-        answer=raw_input("\a\n[!] I am going to overwrite the old report file! Is that OK with you [Y|N]? ")
-        if answer.upper()=="Y": 
-            os.remove(mergedfile)
-        elif answer.upper()=="N": 
-            sys.exit("\nOK than, goodbye.")
+    with open(tmpfile, "a") as datafile:
+        with open(filepath, 'r') as f:
+            txt = f.readlines()
+        copy = False
+        for line in txt:
+            if string not in line:
+                if copy:
+                    if '</Report>' in line.rstrip():
+                        pass
+                    elif '</NessusClientData_v2>' in line.rstrip():
+                        pass
+                    else:
+                        datafile.write(line)
+            else:
+                copy = True
+
+
+def merge(report_name, reportfile, tmpfile):
+    with open(reportfile, "a") as merged:
+        with open(tmpfile) as raw:
+            for line in header:
+                merged.write(line + "\n")
+            merged.write('<Report name="%s">' % report_name)
+            for line in raw:
+                merged.write(line)
+            for line in tail:
+                merged.write(line)
+
+
+def file_check(reportfile):
+    if os.path.exists(reportfile):
+        answer = raw_input("\n[!] I am going to overwrite the old report file! Is that OK with you [Y|N]? ")
+        if answer.upper() == "Y":
+            os.remove(reportfile)
+            print '\t[+] OK. Merging...\n'
+        elif answer.upper() == "N":
+            sys.exit("[+] OK than, goodbye.\n")
         else:
-            sys.exit("\nI don't understand that...Exiting.")
-        
-    
-    
-   
+            sys.exit("[*] I don't understand that...Exiting.\n")
+
 
 def main():
-    dirpath=raw_input("Enter path to the folder containing the nessus reports (ENTER for CWD): ")
-    rep_out_name=raw_input("Enter name for the merged report: ")
-    if dirpath=="":
-        dirpath=os.getcwd()
-        print "\n[!] Using current working directory."
-    system=platform.system()
-    if system=='Windows':   
-        if dirpath[-1] !="\\":
-            dirpath=dirpath+"\\"
-    elif system=='Linux':
-            if dirpath[-1] !="/":
-                dirpath=dirpath+"/"
-    else:
-        sys.exit("\n[!] Unknown operating system :)")
-    
-    report_name=raw_input("\nOutput file name (ENTER for \"mergeness.out\"):" )
-    if report_name=="":
-        report_name="mergeness.out"
-    tmpFileCheck(dirpath, report_name)
-    i=0
-    for file in os.listdir(dirpath):
+    cwd = raw_input("[!] Enter path to the folder containing .nessus files (ENTER for CWD): ").strip()
+    if cwd == "":
+        cwd = os.getcwd()
+        print '\t[+] Using current working directory: "%s".' % cwd
+    report_name = raw_input('\n[!] Output file name (ENTER for "mergeness.out"):').strip()
+    if report_name == "":
+        report_name = "mergeness.out"
+    print '\t[+] Output file name set to "%s"\n' % report_name
+    tempdir = tempfile.gettempdir()
+    tmpfile = os.path.join(tempdir, report_name)
+    if os.path.exists(tmpfile):
+        os.remove(tmpfile)
+    reportfile = os.path.join(cwd, report_name)
+    file_check(reportfile)
+    for i, filename in enumerate(os.listdir(cwd)):
         try:
-            if file.split(".")[-1] =="nessus":
-                i=i+1
-                filepath=dirpath+file
+            if filename.split(".")[-1] == "nessus":
+                filepath = os.path.join(cwd, filename)
                 if i == 1:
-                    saveHeader(filepath, dirpath)
-                    saveData(filepath, dirpath)
+                    saveHeader(filepath)
+                    saveData(tmpfile, filepath, filename, i)
                 else:
-                    saveData(filepath, dirpath)
-        except:
-            pass
-    merge(dirpath, report_name, rep_out_name)
-    os.remove(dirpath+"data.txt")
+                    saveData(tmpfile, filepath, filename, i)
 
-def selfPraise():
-    print "\n"
-    print "***********************************"
-    print "***   .nessus report merge tool ***"
-    print "***\tDejan Levaja\t\t***"
-    print "***\thttp://www.netsec.rs\t***"
-    print "***\tdejan.levaja@netsec.rs\t***"
-    print "***********************************"
-    print "Update: Ability to change report name"
-    print "iampuky - iampuky[at]gmail[dot]com"
-    print "***********************************"
-    print "\n\n"
+        except Exception as e:
+            print '[-] Error! Message was: %s' % e.message
+    merge(report_name, reportfile, tmpfile)
+
+
+def title():
+    banner = """
+                                                              _                                     _              _ 
+    _ __   ___  ___ ___ _   _ ___   _ __ ___ _ __   ___  _ __| |_   _ __ ___   ___ _ __ __ _  ___  | |_ ___   ___ | |
+   | '_ \ / _ \/ __/ __| | | / __| | '__/ _ \ '_ \ / _ \| '__| __| | '_ ` _ \ / _ \ '__/ _` |/ _ \ | __/ _ \ / _ \| |
+  _| | | |  __/\__ \__ \ |_| \__ \ | | |  __/ |_) | (_) | |  | |_  | | | | | |  __/ | | (_| |  __/ | || (_) | (_) | |
+ (_)_| |_|\___||___/___/\__,_|___/ |_|  \___| .__/ \___/|_|   \__| |_| |_| |_|\___|_|  \__, |\___|  \__\___/ \___/|_|
+                                            |_|                                        |___/                         
+"""
+    print banner
+
 
 if __name__ == "__main__":
-    selfPraise()
+    title()
     main()
     sys.exit()
