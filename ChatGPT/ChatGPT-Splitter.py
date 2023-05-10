@@ -56,7 +56,7 @@ def obtener_tamano_de_bloque():
 
 # Lee el nombre del archivo de texto como parámetro.
 def leer_texto(nombre_archivo):
-    with open(nombre_archivo, "r") as f:
+    with open(nombre_archivo, "r", encoding="utf-8") as f:
         return f.read()
 
 # Divide el texto en el tamaño de bloque, sin partir la última palabra.
