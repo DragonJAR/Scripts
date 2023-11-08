@@ -25,6 +25,7 @@ python3 NmapDataExtractor.py <ruta_del_archivo> [-t <top_n>]
 
 - `<ruta_al_archivo>` debe ser la ruta al archivo de salida de Nmap (`.xml` o `.txt en formato IP:PUERTO`).
 - `-t <top_n>` es un parámetro opcional para especificar la cantidad de los puertos más comunes a mostrar (el valor predeterminado es 10).
+- `-todo` es opcional y se utiliza para definir el número máximo de elementos en el "top". Este valor se establece tomando el mayor entre el número de IPs y el número de puertos.
 
 ## Ejemplo de Uso
 Para analizar el archivo de ejemplo `prueba.txt` y mostrar los 10 puertos más comunes, ejecute:
