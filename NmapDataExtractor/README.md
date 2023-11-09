@@ -29,7 +29,9 @@ python3 NmapDataExtractor.py <ruta_del_archivo> [-t <top_n>]
 
 ## Ejemplo de Uso
 Para analizar el archivo de ejemplo `prueba.txt` y mostrar los 10 puertos más comunes, ejecute:
-`python3 NmapDataExtractor.py prueba.txt`
+```bash
+python3 NmapDataExtractor.py prueba.txt
+```
 
 Para procesar el archivo `prueba.xml` y mostrar los 20 puertos más comunes, use:
 ```bash
