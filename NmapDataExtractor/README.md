@@ -37,6 +37,7 @@ Para procesar el archivo `prueba.xml` y mostrar los 20 puertos más comunes, use
 ```bash
 python3 NmapDataExtractor.py prueba.xml -t 20
 ```
+[![asciicast](https://asciinema.org/a/qKtWuEcq2f6V267MbTKjU440f.svg)](https://asciinema.org/a/qKtWuEcq2f6V267MbTKjU440f)
 
 ## Contribuir
 Las contribuciones son bienvenidas. Por favor, haga un fork del repositorio, realice sus cambios y envíe un pull request con sus mejoras.
