@@ -2,12 +2,12 @@
 
 
 ## Descripción
-`NmapDataExtractor` es un script de Python sencillo diseñado para analizar y resumir los datos provenientes de escaneos de red efectuados con Nmap. Esta herramienta se especializa en identificar y clasificar direcciones IP y puertos abiertos, simplificando la labor de auditores y pentesters al ofrecer una visión clara de la superficie de ataque, lo que permite priorizar los activos según la cantidad de servicios expuestos.
+`NmapDataExtractor` es un sencillo script de Python diseñado para simplificar la tarea de analizar y sintetizar la información obtenida a través de escaneos de red realizados con Nmap. En el contexto de pentesting, donde los profesionales enfrentan el desafío de descubrir tantas vulnerabilidades como sea posible en un lapso limitado, es crucial priorizar los activos con mayor superficie de ataque, que tienen más probabilidades de presentar problemas de seguridad. Esta herramienta facilita la identificación y categorización de direcciones IP y puertos abiertos, proporcionando a los pentesters una visión clara de la superficie de ataque. Esto permite enfocar los esfuerzos en aquellos activos con un mayor número de servicios expuestos y, por ende, un potencial más alto de contener vulnerabilidades de seguridad.
 
 ## Funcionalidades
 - Procesa la salida de Nmap en formatos `.xml` y `.txt`.
-- Extrae y contabiliza las IPs y puertos encontrados permitiendo ver facilmente los mas expuestos.
-- Presenta un resumen ordenado de IPs y puertos, destacando los más recurrentes y generando tops.
+- El script organiza las IPs y puertos detectados, destacando las IPs con más servicios y los puertos más recurrentes, para ayudar a enfocarse en los activos más expuestos de la red.
+- El script clasifica direcciones IP y puertos, destacando los más comunes en TOP´s y priorizando aquellos que requieren más atención. Presenta los datos de forma clara y ordenada, separados por comas para facilitar su uso con otras herramientas.
 
 ## Archivos de Ejemplo
 El repositorio incluye dos archivos de ejemplo que demuestran los formatos de entrada que la herramienta puede procesar:
